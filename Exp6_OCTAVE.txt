@@ -1,0 +1,45 @@
+% Display Channel Matrix
+disp("Channel Matrix:");
+CM = [0.9 0.1; 0.2 0.8];
+
+% Input probabilities
+p_x1 = 0.5;
+p_x2 = 0.5;
+
+% Output probabilities
+disp("Output Probability:");
+p_y1 = p_x1 * CM(1, 1) + p_x2 * CM(2, 1);
+p_y2 = p_x1 * CM(1, 2) + p_x2 * CM(2, 2);
+
+P_X = [p_x1, p_x2]; % Input probability
+p_y = [p_y1, p_y2]; % Output probability
+
+% Display Input and Output Probabilities
+disp("Input Probability:");
+disp(P_X);
+disp("Output Probability:");
+disp(p_y);
+
+% Calculate Input Entropy
+disp("Input Entropy:");
+h_x = -p_x1 * log2(p_x1) - p_x2 * log2(p_x2);
+disp(h_x);
+
+% Calculate Output Entropy
+disp("Output Entropy:");
+h_y = -p_y1 * log2(p_y1) - p_y2 * log2(p_y2);
+disp(h_y);
+
+% Conditional Probability
+pxbyy = P_X .* CM; % Element-wise multiplication for conditional probability
+
+% Conditional Entropy H(X|Y)
+H_xy = -pxbyy(1,1) * log2(pxbyy(1,1)) - pxbyy(1,2) * log2(pxbyy(1,2)) ...
+       - pxbyy(2,1) * log2(pxbyy(2,1)) - pxbyy(2,2) * log2(pxbyy(2,2));
+H_xbyy = H_xy - h_y; % Conditional Entropy H(X|Y)
+H_ybyx = H_xy - h_x; % Conditional Entropy H(Y|X)
+
+% Mutual Information
+disp("Mutual Information:");
+I_xy = h_x - H_xbyy;
+disp(I_xy);

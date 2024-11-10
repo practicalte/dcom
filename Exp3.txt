@@ -1,0 +1,80 @@
+% Clear environment
+clc;
+clear all;
+close all;
+
+% Generate random numbers from a normal distribution
+random_numbers = normrnd(1, 50, 1, 100);
+
+% Calculate the mean
+mean_val = mean(random_numbers);
+disp(['Mean: ', num2str(mean_val)]);
+
+% Plot the random sample values
+figure;
+plot(random_numbers);
+ylabel('Random Sample Value');
+hold on;
+plot(xlim, [mean_val mean_val], 'r--', 'LineWidth', 1.5);
+legend('Random Numbers', 'Mean');
+hold off;
+
+% Calculate variance
+variance_val = var(random_numbers); % Variance in Octave
+disp(['Variance: ', num2str(variance_val)]);
+
+% Calculate standard deviation
+std_deviation = std(random_numbers);
+disp(['Standard Deviation: ', num2str(std_deviation)]);
+
+% Plot with mean and standard deviation lines
+figure;
+plot(random_numbers);
+ylabel('Random Sample Value');
+hold on;
+plot(xlim, [mean_val mean_val], 'r--', 'LineWidth', 1.5); % Mean line
+plot(xlim, [mean_val + std_deviation mean_val + std_deviation], 'y--', 'LineWidth', 1.5); % SD line
+plot(xlim, [mean_val - std_deviation mean_val - std_deviation], 'y--', 'LineWidth', 1.5);
+legend('Random Numbers', 'Mean', 'Std Dev');
+hold off;
+
+% Plot the histogram (probability density function)
+figure;
+hist(random_numbers, 10);
+xlabel('Random Sample Value');
+ylabel('Frequency');
+title('Histogram of Random Numbers');
+
+% Autocorrelation
+[acf, lags] = xcorr(random_numbers - mean(random_numbers), 'coeff');
+figure;
+stem(lags, acf);
+title('Autocorrelation');
+xlabel('Lags');
+ylabel('Autocorrelation Coefficient');
+
+% Generate another random series for cross-correlation
+random_numbers2 = randi([0, 50], 1, 100);
+
+% Cross-correlation
+[cross_corr, lags] = xcorr(random_numbers - mean(random_numbers), random_numbers2 - mean(random_numbers2), 'coeff');
+figure;
+plot(lags, cross_corr);
+ylabel('Cross-correlation');
+xlabel('Lags');
+title('Cross-correlation between Random Series');
+
+% Ensemble mean
+ensemble = random_numbers + random_numbers2;
+ensemble_average = ensemble / length(ensemble);
+
+figure;
+plot(ensemble_average);
+title('Ensemble Average');
+
+% Histogram of ensemble average
+figure;
+hist(ensemble_average, 10);
+xlabel('Ensemble Average Value');
+ylabel('Frequency');
+title('Histogram of Ensemble Average');
