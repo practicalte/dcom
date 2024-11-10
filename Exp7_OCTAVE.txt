@@ -1,0 +1,88 @@
+% LINEAR BLOCK CODE
+clc;
+clear all;
+close all;
+
+% Transmitter end
+in = input('Enter the (n,k) linear block code value as [n, k]: ');
+n = in(1);
+k = in(2);
+p = n - k;
+id = eye(k);
+disp('Identity matrix:');
+disp(id);
+
+% Construct parity matrix
+temp = [ones(1, k-1), zeros(1, 1)];
+parity = temp;
+
+for i = 1:(n - k - 1)
+    temp1 = temp(k);
+    for j = k:-1:2
+        temp(j) = temp(j - 1);
+    end
+    temp(1) = temp1;
+    parity = [parity; temp];
+end
+parity = parity';
+disp('Parity matrix:');
+disp(parity);
+
+% Generator matrix
+generator = [parity, id];
+disp('Generator matrix at transmitter end:');
+disp(generator);
+
+% Valid data words
+data = 0:power(2, k) - 1;
+data = dec2bin(data) - 48;
+disp('Valid data words:');
+disp(data);
+
+% Generate codewords
+tcode = [];
+for i = 1:length(data)
+    tcode = [tcode; mod(data(i, :) * generator, 2)];
+end
+disp('Valid codewords ready for transmission:');
+disp(tcode);
+
+% Receiver end
+rcode = input('Enter a received codeword as a binary vector (e.g., [1 0 1 0]): ');
+check = [eye(p), parity'];
+disp('Parity check matrix:');
+disp(check);
+check = check';
+disp('Transpose of Parity check matrix:');
+disp(check);
+
+% Syndrome calculation
+syn = mod(rcode * check, 2);
+disp('Syndrome vector in received codeword:');
+disp(syn);
+
+% Error detection and correction
+if isequal(syn, zeros(1, p))
+    disp('The received codeword has no error in it.');
+    validcode = rcode;
+else
+    pos = 0;
+    for m = 1:length(check)
+        if isequal(syn, check(m, :))
+            pos = m;
+            break;
+        end
+    end
+    zero = zeros(1, n);
+    zero(pos) = 1; % Error pattern at position pos
+    errorpat = zero;
+    disp('Error pattern possible in received codeword:');
+    disp(errorpat);
+    validcode = xor(rcode, errorpat);
+    fprintf('The valid code word after detecting error at position %d and correcting it.\n', pos);
+    disp(validcode);
+end
+
+% Decoding data word from received codeword
+disp('Decoded data from received codeword:');
+disp(validcode((n - k + 1):n));

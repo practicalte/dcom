@@ -1,0 +1,58 @@
+% Clear the environment
+clc;
+clear all;
+close all;
+
+% Parameters
+M = 16; % Modulation order
+num_symbol = 1000; % Number of symbols
+
+% Generate random data
+data = randi([0 M-1], num_symbol, 1); 
+
+% QAM modulation
+txSig = qammod(data, M);
+
+% Plot scatter plot of transmitted signal
+figure;
+scatterplot(txSig);
+title('QAM Scatter Plot');
+
+% Add AWGN noise to the signal
+rxSig = awgn(txSig, 20);
+
+% Plot scatter plot of noisy received signal
+figure;
+scatterplot(rxSig);
+title('Noisy QAM Scatter Plot');
+
+% Initialize arrays for SNR, simulated BER, and theoretical BER
+snr = [];
+BER_sim = [];
+ber_theoretical = [];
+
+for i = 1:50
+    snr(i) = i; % SNR values in dB
+    EbNo = 10^(snr(i)/10); % Convert SNR from dB to linear scale
+
+    % Add noise to the signal at each SNR level
+    rxSig = awgn(txSig, snr(i));
+
+    % Calculate simulated BER
+    [numErrors, BER_sim(i)] = biterr(data, qamdemod(rxSig, M)) / num_symbol;
+
+    % Calculate theoretical BER for QAM
+    ber_theoretical(i) = (2 * (1 - 1 / sqrt(M))) * erfc(sqrt((3 * EbNo) / (2 * (M - 1))));
+end
+
+% Plot BER vs SNR for both simulated and theoretical BER
+figure;
+plot(snr, BER_sim, 'b', 'LineWidth', 1.5);
+hold on;
+plot(snr, ber_theoretical, 'r--', 'LineWidth', 1.5);
+xlabel('SNR (dB)');
+ylabel('Bit Error Rate (BER)');
+legend('BER_{sim}', 'BER_{theoretical}');
+title('BER vs. SNR for 16-QAM');
+grid on;
+hold off;
